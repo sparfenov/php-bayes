@@ -39,22 +39,30 @@ class Model
     private $documentsByClasses;
 
     /**
+     * @var
+     */
+    private $authorsByClasses;
+
+    /**
      *
      * @param int $dictionarySize - кол-во уникальных слов всего
      * @param array $documentsByClasses - кол-во документов в классах
      * @param array $classesLength - кол-во слов в классах
      * @param array $wordCountsByClasses - кол-во каждого из слов в каждом из классов
+     * @param array authorsByClasses - кол-во документов каждого автора в каждом из классов
      */
     public function __construct(
         int $dictionarySize,
         array $wordCountsByClasses,
         array $classesLength,
-        array $documentsByClasses
+        array $documentsByClasses,
+        array $authorsByClasses
     ) {
         $this->dictionarySize = $dictionarySize;
         $this->wordCountsByClasses = $wordCountsByClasses;
         $this->classesLength = $classesLength;
         $this->documentsByClasses = $documentsByClasses;
+        $this->authorsByClasses = $authorsByClasses;
     }
 
     /**
@@ -69,7 +77,8 @@ class Model
             $model['dictionarySize'],
             $model['wordCountsByClasses'],
             $model['classesLength'],
-            $model['documentsByClasses']
+            $model['documentsByClasses'],
+            $model['authorsByClasses']
         );
     }
 
@@ -103,6 +112,22 @@ class Model
     }
 
     /**
+     * Логарифм вероятности автора в классе
+     *
+     * @param string $class
+     * @param string $author
+     * @return float
+     */
+    public function getLogAuthorProbability(string $class, string $author) : float
+    {
+        return log(
+            (($this->authorsByClasses[$author][$class] ?? 0) + 1)
+            /
+            (array_sum($this->authorsByClasses[$author] ?? []) + 1)
+        );
+    }
+
+    /**
      * @return array
      */
     public function getClasses() : array
@@ -114,6 +139,14 @@ class Model
      * Сериализация модели для возможности сохранения ее состояния в _любое_ хранилище,
      * чтобы при необходимости классифицировать текст, не пересчитывать модель заново
      *
+     * @return array
+     */
+    public function getAuthors() : array
+    {
+        return array_keys($this->authorsByClasses);
+    }
+
+    /**
      * @return string
      */
     public function __toString() : string
@@ -124,6 +157,7 @@ class Model
                 'wordCountsByClasses' => $this->wordCountsByClasses,
                 'classesLength' => $this->classesLength,
                 'documentsByClasses' => $this->documentsByClasses,
+                'authorsByClasses' => $this->authorsByClasses,
             ]
         ,JSON_UNESCAPED_UNICODE);
     }

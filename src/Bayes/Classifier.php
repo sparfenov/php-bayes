@@ -27,16 +27,18 @@ class Classifier
      * возвращает результат в относительных логарифмических оценках (чем ближе к 0 тем лучше)
      *
      * @param string $text
+     * @param string $author
      * @return []float
      */
-    public function classify(string $text) : array
+    public function classify(string $text, string $author) : array
     {
         $logProbabilities = [];
         foreach ($this->model->getClasses() as $class) {
-            $logProbabilities[$class] = $this->calcLogProbability($text, $class);
+            $logProbabilities[$class] = $this->calcLogProbability($text, $class, $author);
         }
 
         arsort($logProbabilities);
+
         return $logProbabilities;
     }
 
@@ -44,11 +46,12 @@ class Classifier
      * То же что и функция выше, только пересчитывает результат в процентах
      *
      * @param string $text
+     * @param string $author
      * @return array
      */
-    public function classifyReturningPercent(string $text) : array
+    public function classifyReturningPercent(string $text, string $author) : array
     {
-        $logs = $this->classify($text);
+        $logs = $this->classify($text, $author);
 
         // Вычисляем вероятность в процентах из логарифмических оценок
         $probabilities = [];
@@ -59,7 +62,6 @@ class Classifier
         }
 
         arsort($probabilities);
-
         return $probabilities;
     }
 
@@ -68,9 +70,10 @@ class Classifier
      *
      * @param string $text
      * @param string $class
+     * @param string $author
      * @return float
      */
-    public function calcLogProbability(string $text, string $class) : float
+    public function calcLogProbability(string $text, string $class, string $author) : float
     {
         $document = new Document($text);
         $wordProb = 0.0;
@@ -79,6 +82,8 @@ class Classifier
             $wordProb += $this->model->getLogWordProbability($class, $word);
         }
 
-        return $this->model->getLogClassProbability($class) + $wordProb;
+        return $this->model->getLogClassProbability($class)
+               + $this->model->getLogAuthorProbability($class, $author)
+               + $wordProb;
     }
 }

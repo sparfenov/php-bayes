@@ -10,51 +10,47 @@ use Sparfenov\Classification\Bayes\Trainer;
 class ClassifierTest extends TestCase
 {
     /**
-     * @dataProvider sampleDataProvider
      * @param array $trainData
      * @param array $predictionData
      */
-    public function testClassification($trainData, $predictionData)
+    public function testClassification()
     {
+        $handle = fopen('test_data_authors.csv', 'r');
         $trainer = new Trainer();
 
-        foreach ($trainData as $document) {
-            $trainer->addDocument($document['text'], $document['class']);
+        fwrite(STDERR, print_r("TRAINING\n", true));
+        $i = 0;
+        while ($i < 15000) {
+            $i++;
+            fwrite(STDERR, print_r("$i\n", true));
+            $document = fgetcsv($handle);
+            $trainer->addDocument($document[2], $document[1], $document[0]);
         }
         $model = $trainer->getModel();
 
+        fwrite(STDERR, print_r("TESTING\n", true));
+
         $classifier = new Classifier($model);
-        foreach ($predictionData as $document) {
-            $result = $classifier->classify($document['text']);
+        while ($i < 20000) {
+            $i++;
+            fwrite(STDERR, print_r("$i\n", true));
+            $document = fgetcsv($handle);
+            $result = $classifier->classify($document[2], $document[1]);
             $mostProbableClass = array_keys($result)[0];
-            $this->assertEquals($document['class'], $mostProbableClass);
+            $predictStats[] = (int)($mostProbableClass === $document[0]);
         }
-    }
+        fclose($handle);
 
-    public function sampleDataProvider()
-    {
-        return [
-            [
-                'train' => [
-                    ['class' => 'Звезды - Новости', 'text' => 'Эмили Ратаковски на прогулке с мужем'],
-                    ['class' => 'Звезды - Новости', 'text' => 'Брэд Питт выиграл «первый раунд» суда у Анджелины Джоли'],
-
-                    ['class' => 'Стиль жизни', 'text' => 'Главные по театру: 8 ключевых российских режиссеров'],
-                    ['class' => 'Стиль жизни', 'text' => 'Что смотреть на театральных подмостках Нью-Йорка?'],
-                ],
-                'prediction' => [
-                    ['class' => 'Звезды - Новости', 'text' => 'Бред Питт в Нью-Йорке на прогулке с мужем'],
-                    ['class' => 'Стиль жизни', 'text' => 'Что посмотреть на выходных'],
-                ],
-            ],
-        ];
+        $accuracy = array_sum($predictStats) / count($predictStats);
+        var_dump($predictStats, $accuracy);
+        $this->assertGreaterThan(0.68, $accuracy);
     }
 
     public function testSerialize()
     {
         $trainer = new Trainer();
-        $trainer->addDocument('some text', 'some_class');
-        $trainer->addDocument('some other text', 'class');
+        $trainer->addDocument('some text', 'author', 'some_class');
+        $trainer->addDocument('some other text', 'author2', 'class');
 
         $model = $trainer->getModel();
 

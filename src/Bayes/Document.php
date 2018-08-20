@@ -18,6 +18,11 @@ class Document
     /**
      * @var string
      */
+    private $author;
+
+    /**
+     * @var string
+     */
     private $text;
 
     /**
@@ -27,14 +32,15 @@ class Document
 
     /**
      * Модель классифицируемого документа
-     *
-     * @param string $text - текст, содержание
-     * @param string $class - класс документа если известен
+     * @param string $text
+     * @param null|string $author
+     * @param null|string $class
      */
-    public function __construct(string $text, ?string $class = null)
+    public function __construct(string $text, ?string $author = null, ?string $class = null)
     {
         $this->class = $class;
         $this->text = $text;
+        $this->author = $author;
     }
 
     /**
@@ -86,5 +92,13 @@ class Document
     public function getClass()
     {
         return $this->class;
+    }
+
+    /**
+     * @return string
+     */
+    public function getAuthor()
+    {
+        return $this->author;
     }
 }
