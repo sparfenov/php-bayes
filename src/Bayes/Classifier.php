@@ -59,6 +59,7 @@ class Classifier
         }
 
         arsort($probabilities);
+
         return $probabilities;
     }
 

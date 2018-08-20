@@ -38,6 +38,7 @@ class Trainer
         foreach ($this->documents as $doc) {
             $docWords = $doc->getNormalizedWords();
             $classesLength[$doc->getClass()] = ($classesLength[$doc->getClass()] ?? 0) + count($docWords);
+
             $documentsByClasses[$doc->getClass()] = ($documentsByClasses[$doc->getClass()] ?? 0) + 1;
 
             foreach ($docWords as $word) {
