@@ -1,0 +1,31 @@
+{
+    "name": "sparfenov/classification-bayes",
+    "description": "PHP realisation of naive bayes classificator for articles",
+    "type": "library",
+    "scripts": {
+        "test": "phpunit -c phpunit.xml"
+    },
+    "require": {
+        "symfony/console": "^4.2@dev",
+        "nxp/russian-porter-stemmer": "dev-master",
+        "phpunit/phpunit": "^7.4@dev"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Sergey Parfenov",
+            "email": "mail@sparfenov.ru"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Sparfenov\\Classification\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Sparfenov\\Classification\\Tests\\": "tests"
+        }
+    },
+    "minimum-stability": "dev"
+}
